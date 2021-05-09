@@ -62,6 +62,6 @@ while len(url_stack) > 0:
 
 output = list(map(lambda x: x.split("/")[-1], done_urls))
 print("found " + str(len(output)) + " tweets")
-f = open("tweets.json", "w")
+f = open("tweet-ids.json", "w")
 f.write(json.dumps(output))
 f.close()
