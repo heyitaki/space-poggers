@@ -8,9 +8,9 @@
       "type": "extendscript-debug",
       "request": "launch",
       "name": "Popup Debug",
-      "program": "${workspaceFolder}/dist/index.js",
+      "program": "${workspaceFolder}/dist/main.js",
       "stopOnEntry": false,
-      "preLaunchTask": "tsc: build - tsconfig.json"
+      // "preLaunchTask": "tsc: build - tsconfig.json"
     }
   ]
 }

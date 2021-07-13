@@ -1,0 +1,18 @@
+{
+  "presets": [
+      // "@babel/env",
+      ["@babel/preset-env", {
+        "useBuiltIns": "usage", // or "entry"
+        "corejs": 3,
+      }],
+      "@babel/preset-typescript"
+  ],
+  "plugins": [
+      ["@babel/plugin-transform-runtime", {
+        "helpers": false,
+        "regenerator": true,
+        "corejs": 3
+      }],
+      "@babel/plugin-proposal-class-properties"
+  ]
+}
