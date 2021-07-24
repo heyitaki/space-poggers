@@ -10,7 +10,8 @@
       "name": "Popup Debug",
       "program": "${workspaceFolder}/dist/index.js",
       "stopOnEntry": false,
-      "preLaunchTask": "tsc: build - tsconfig.json"
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "targetSpecifier": "photoshop-150.064"
     }
   ]
 }
