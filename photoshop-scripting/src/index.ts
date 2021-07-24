@@ -1,11 +1,32 @@
+//@include "../polyfills/json.js";
+//@include "../polyfills/object.js";
+//@include "./constants.js";
+//@include "./logic.js";
+
+type Rarities = [string, number][];
+
+getPoggerCombo();
+
 const allLayers: string[] = [];
 
-const collectAllLayers = (parent: Document, level: number) => {
-  for (var m = parent.layers.length - 1; m >= 0; m--) {
-    const layer: Layer = parent.layers[m];
-    if (layer.typename !== "ArtLayer") {
+const isLayerSet = (x: any): x is LayerSet => {
+  return x && x.typename && x.typename === "LayerSet";
+};
+
+const collectAllLayers = (parent: Document | LayerSet, level: number) => {
+  // if (level > 0) {
+  //   $.writeln(parent);
+  //   $.writeln("layers" + parent.layers);
+  // }
+
+  for (let m = parent.layers.length - 1; m >= 0; m--) {
+    const layer = parent.layers[m];
+    // $.write(" layer: " + layer);
+    // $.write(" layerTypename: " + layer.typename);
+    // $.writeln(" layerName: " + layer.name);
+    if (isLayerSet(layer)) {
       allLayers.push(level + " " + layer.name);
-      collectAllLayers(layer as any as Document, level + 1);
+      collectAllLayers(layer, level + 1);
     } else {
       $.writeln(layer.name);
     }
