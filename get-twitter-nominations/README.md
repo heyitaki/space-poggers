@@ -11,6 +11,8 @@ On April 24th, Nifty posted [this](https://twitter.com/NiftyWhaleNFT/status/1386
 {id: '2', text: '@a @b @c @123username wish I couldve been there!', replyingTo: '1', authorId: '456}
 ```
 
+## Notes
+The code is super raw, the intent was to share the process of getting the nominations instead of publishing a clean way to get them. I grab all of the tweet ids in `get_tweet_ids.py`, look up them up with Twitter API in `get_tweet_info.py` and enumerate the nominations in `calc_nominations.py`.
 
 ## License
 Feel free to use this code as you please.
