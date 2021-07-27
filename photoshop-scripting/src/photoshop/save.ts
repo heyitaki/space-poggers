@@ -1,6 +1,8 @@
-const saveAsPng = (filename: string) => {
-  const doc = app.activeDocument;
+const getFilename = (traits: Traits) => {
+  return `${traits.background}-${traits.character}-${traits.mouth}-${traits.hat}-${traits.eye}-${traits.neck}-${traits.torso}.png`;
+};
 
+const saveAsPng = (filename: string) => {
   // Create folder if necessary
   const dest = new Folder("~/spacepoggers");
   if (!dest.exists) {
@@ -13,6 +15,6 @@ const saveAsPng = (filename: string) => {
   opts.compression = 0;
   opts.interlaced = false;
 
-  // Save
-  doc.saveAs(file, opts, true, Extension.LOWERCASE);
+  // Save file
+  app.activeDocument.saveAs(file, opts, true, Extension.LOWERCASE);
 };

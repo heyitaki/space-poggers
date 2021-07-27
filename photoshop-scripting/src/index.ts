@@ -37,4 +37,4 @@
 // collectAllLayers(app.activeDocument, 0);
 // $.writeln(allLayers);
 
-saveAsPng("hi.png");
+// saveAsPng("hi.png");

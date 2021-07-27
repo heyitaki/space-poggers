@@ -1,3 +1,5 @@
+const DEFAULT_LAYERS = [];
+
 const NONE = "None";
 
 const BackgroundColor = {
