@@ -34,10 +34,7 @@
 // collectAllLayers(app.activeDocument, 0);
 // $.writeln(allLayers);
 
-const sampleTraits = {
-  background: BackgroundColor.AppleJack,
-  character: CharacterBase.Bee,
-};
-setLayers(sampleTraits);
-
-// saveAsPng("hi.png");
+const combo = getPoggerCombo();
+const filename = getFilename(combo);
+setLayers(combo);
+saveAsPng(filename);

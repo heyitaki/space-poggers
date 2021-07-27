@@ -18,7 +18,7 @@ const getRandomTraitFromEnum = (rarities: Rarities) => {
   return trait;
 };
 
-const getPoggerCombo = (): PoggerCombo => {
+const getPoggerCombo = (): Partial<PoggerCombo> => {
   const backgroundColor = getRandomTraitFromObject(BackgroundColor);
   const characterBase = getRandomTraitFromObject(CharacterBase);
   const mouthAccessory = getRandomTraitFromEnum(mouthAccessoryRarities);
@@ -26,13 +26,14 @@ const getPoggerCombo = (): PoggerCombo => {
   const eyeAccessory = getRandomTraitFromEnum(eyeAccessoryRarities);
   const neckAccessory = getRandomTraitFromEnum(neckAccessoryRarities);
   const torsoAccessory = getRandomTraitFromEnum(torsoAccessoryRarities);
-  return {
-    background: backgroundColor,
-    character: characterBase,
-    mouth: mouthAccessory,
-    hat: hatAccessory,
-    eye: eyeAccessory,
-    neck: neckAccessory,
-    torso: torsoAccessory,
-  };
+
+  const combo: Partial<PoggerCombo> = {};
+  if (backgroundColor !== NONE) combo.background = backgroundColor;
+  if (characterBase !== NONE) combo.background = characterBase;
+  if (mouthAccessory !== NONE) combo.background = mouthAccessory;
+  if (hatAccessory !== NONE) combo.background = hatAccessory;
+  if (eyeAccessory !== NONE) combo.background = eyeAccessory;
+  if (neckAccessory !== NONE) combo.background = neckAccessory;
+  if (torsoAccessory !== NONE) combo.background = torsoAccessory;
+  return combo;
 };

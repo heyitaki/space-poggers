@@ -1,5 +1,9 @@
-const getFilename = (traits: PoggerCombo) => {
-  return `${traits.background}-${traits.character}-${traits.mouth}-${traits.hat}-${traits.eye}-${traits.neck}-${traits.torso}.png`;
+const getFilename = (traits: Partial<PoggerCombo>) => {
+  return `${traits.background || ""}-${traits.character || ""}-${
+    traits.mouth || ""
+  }-${traits.hat || ""}-${traits.eye || ""}-${traits.neck || ""}-${
+    traits.torso || ""
+  }.png`;
 };
 
 const saveAsPng = (filename: string) => {

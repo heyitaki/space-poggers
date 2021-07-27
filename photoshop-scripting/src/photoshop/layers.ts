@@ -2,16 +2,6 @@ const isLayerSet = (x: any): x is LayerSet => {
   return x && x.typename && x.typename === "LayerSet";
 };
 
-const isArtLayer = (x: any): x is ArtLayer => {
-  return (
-    x &&
-    x.typename &&
-    x.typename === "ArtLayer" &&
-    x.name &&
-    /^[a-zA-Z][a-zA-Z\s]*$/.test(x.name)
-  );
-};
-
 const getLayerByName = (name: string, layers: Layers): Layer | null => {
   if (layers === null) {
     $.writeln("Path to trait is invalid");
@@ -52,7 +42,7 @@ const hideLayers = (layers: Layers) => {
 };
 
 const setLayers = (traits: Partial<PoggerCombo>) => {
-  // Hide all layers
+  // Hide all art layers
   hideLayers(app.activeDocument.layers);
 
   // Show white background
