@@ -1,0 +1,1 @@
+type Rarities = [string, number][];
