@@ -5,14 +5,11 @@
 //@include "./random.js";
 //@include "./photoshop/layers.js";
 //@include "./photoshop/save.js";
+//@include "./utils.js";
 
 // getPoggerCombo();
 
 // const allLayers: string[] = [];
-
-// const isLayerSet = (x: any): x is LayerSet => {
-//   return x && x.typename && x.typename === "LayerSet";
-// };
 
 // const collectAllLayers = (parent: Document | LayerSet, level: number) => {
 //   // if (level > 0) {
@@ -36,5 +33,11 @@
 
 // collectAllLayers(app.activeDocument, 0);
 // $.writeln(allLayers);
+
+const sampleTraits = {
+  background: BackgroundColor.AppleJack,
+  character: CharacterBase.Bee,
+};
+setLayers(sampleTraits);
 
 // saveAsPng("hi.png");

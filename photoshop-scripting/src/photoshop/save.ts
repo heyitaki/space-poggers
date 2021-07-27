@@ -1,4 +1,4 @@
-const getFilename = (traits: Traits) => {
+const getFilename = (traits: PoggerCombo) => {
   return `${traits.background}-${traits.character}-${traits.mouth}-${traits.hat}-${traits.eye}-${traits.neck}-${traits.torso}.png`;
 };
 

@@ -1,10 +1,10 @@
 type Rarities = [string, number][];
-type Traits = {
-  background: string;
-  character: string;
-  mouth: string;
-  hat: string;
-  eye: string;
-  neck: string;
-  torso: string;
+type PoggerCombo = {
+  [PoggerTraits.Background]: string;
+  [PoggerTraits.CharacterBase]: string;
+  [PoggerTraits.EyeAccessory]: string;
+  [PoggerTraits.HatAccessory]: string;
+  [PoggerTraits.MouthAccessory]: string;
+  [PoggerTraits.NeckAccessory]: string;
+  [PoggerTraits.TorsoAccessory]: string;
 };

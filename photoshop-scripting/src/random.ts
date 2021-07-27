@@ -18,7 +18,7 @@ const getRandomTraitFromEnum = (rarities: Rarities) => {
   return trait;
 };
 
-const getPoggerCombo = (): Traits => {
+const getPoggerCombo = (): PoggerCombo => {
   const backgroundColor = getRandomTraitFromObject(BackgroundColor);
   const characterBase = getRandomTraitFromObject(CharacterBase);
   const mouthAccessory = getRandomTraitFromEnum(mouthAccessoryRarities);
