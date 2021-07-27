@@ -29,11 +29,11 @@ const getPoggerCombo = (): Partial<PoggerCombo> => {
 
   const combo: Partial<PoggerCombo> = {};
   if (backgroundColor !== NONE) combo.background = backgroundColor;
-  if (characterBase !== NONE) combo.background = characterBase;
-  if (mouthAccessory !== NONE) combo.background = mouthAccessory;
-  if (hatAccessory !== NONE) combo.background = hatAccessory;
-  if (eyeAccessory !== NONE) combo.background = eyeAccessory;
-  if (neckAccessory !== NONE) combo.background = neckAccessory;
-  if (torsoAccessory !== NONE) combo.background = torsoAccessory;
+  if (characterBase !== NONE) combo.character = characterBase;
+  if (mouthAccessory !== NONE) combo.mouth = mouthAccessory;
+  if (hatAccessory !== NONE) combo.hat = hatAccessory;
+  if (eyeAccessory !== NONE) combo.eye = eyeAccessory;
+  if (neckAccessory !== NONE) combo.neck = neckAccessory;
+  if (torsoAccessory !== NONE) combo.torso = torsoAccessory;
   return combo;
 };

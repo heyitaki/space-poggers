@@ -51,7 +51,7 @@ const setLayers = (traits: Partial<PoggerCombo>) => {
 
   // Show specified layers
   for (const traitName in traits) {
-    const path = traitsMap[traitName as PoggerTraits];
+    const path = traitPathMap[traitName as PoggerTraits];
     path.push(traits[traitName as PoggerTraits]!);
     const layer = getLayerByPath(path);
     if (layer) layer.visible = true;
