@@ -7,12 +7,21 @@
 //@include "./types.js";
 //@include "./utils.js";
 
-const doneIds = new Set<string>();
-while (doneIds.size < NUM_TOKENS_TO_MINT) {
+// // Minting specific combo
+// const combo = {
+//   background: BackgroundColor.Blueberry,
+//   character: CharacterBase.Bee,
+// };
+// const filename = getFilename(combo);
+// setLayers(combo);
+// saveAsPng(filename);
+
+const doneIds: { [key: string]: boolean } = {};
+while (Object.keys(doneIds).length < NUM_TOKENS_TO_MINT) {
   const combo = getPoggerCombo();
   const filename = getFilename(combo);
-  if (!doneIds.has(filename)) {
-    doneIds.add(filename);
+  if (!doneIds[filename]) {
+    doneIds[filename] = true;
     setLayers(combo);
     saveAsPng(filename);
   }

@@ -27,4 +27,4 @@ const traitPathMap = {
 };
 
 const NONE = "None";
-const NUM_TOKENS_TO_MINT = 10;
+const NUM_TOKENS_TO_MINT = 3;
