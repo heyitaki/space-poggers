@@ -40,18 +40,21 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function mintPoggerTier1() public payable {
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER1_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER1_PRICE <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER1_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier2() public payable {
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER2_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER2_PRICE.mul(TIER2_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER2_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier3() public payable {
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER3_PRICE.mul(TIER3_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER3_NUM_TOKENS, msg.sender);
@@ -66,7 +69,6 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function _mintPoggers(uint256 numPoggers, address recipient) internal {
-    require(isSaleActive, 'Sale must be active to mint Poggers');
     for (uint256 i = 0; i < numPoggers; i++) {
       _safeMint(recipient, totalSupply());
     }
@@ -103,4 +105,8 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   // way to change base uri
+  // ability to send tokens to other wallets
+  // opensea integration
+  // ability to change price?
+  // withdraw?
 }
