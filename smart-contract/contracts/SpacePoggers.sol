@@ -11,6 +11,9 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   using SafeMath for uint256;
 
   bool public isSaleActive = false;
+  uint256 public startingIndex = 0;
+  uint256 public startingIndexBlock = 0;
+  uint256 public revealTimeStamp = 0;
 
   // Constants
   uint256 public constant TIER1_PRICE = .07 ether;
@@ -20,6 +23,7 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   uint256 public constant TIER2_NUM_TOKENS = 3;
   uint256 public constant TIER3_NUM_TOKENS = 12;
   uint256 public constant MAX_SUPPLY = 12000;
+  string public POGGERS_PROVENANCE = ''; // Set once after launch, when tokens have been finalized
 
   constructor() ERC721('SpacePoggers', 'SP') {}
 
@@ -31,15 +35,6 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     isSaleActive = false;
   }
 
-  /**
-   * Reserve specified number of poggers.
-   */
-  function reservePoggers(uint256 numPoggers) public onlyOwner {
-    for (uint256 i = 0; i < numPoggers; i++) {
-      _safeMint(msg.sender, totalSupply().add(i));
-    }
-  }
-
   function getUnmintedSupply() public view returns (uint256) {
     return MAX_SUPPLY.sub(totalSupply());
   }
@@ -47,28 +42,47 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   function mintPoggerTier1() public payable {
     require(totalSupply().add(TIER1_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER1_PRICE <= msg.value, 'Not enough ether sent');
-    _mintPogger(TIER1_NUM_TOKENS);
+    _mintPoggers(TIER1_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier2() public payable {
     require(totalSupply().add(TIER2_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER2_PRICE.mul(TIER2_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
-    _mintPogger(TIER2_NUM_TOKENS);
+    _mintPoggers(TIER2_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier3() public payable {
     require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER3_PRICE.mul(TIER3_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
-    _mintPogger(TIER3_NUM_TOKENS);
+    _mintPoggers(TIER3_NUM_TOKENS, msg.sender);
   }
 
-  function _mintPogger(uint256 numPoggers) internal {
+  function reservePoggers(uint256 numPoggers) public onlyOwner {
+    _mintPoggers(numPoggers, msg.sender);
+  }
+
+  function giveAwayPogger(uint256 numPoggers, address recipient) external onlyOwner {
+    _mintPoggers(numPoggers, recipient);
+  }
+
+  function _mintPoggers(uint256 numPoggers, address recipient) internal {
     require(isSaleActive, 'Sale must be active to mint Poggers');
     for (uint256 i = 0; i < numPoggers; i++) {
-      if (totalSupply() < MAX_SUPPLY) {
-        _safeMint(msg.sender, totalSupply());
-      }
+      _safeMint(recipient, totalSupply());
     }
+  }
+
+  function setProvenanceHash(string memory provenanceHash) external onlyOwner {
+    POGGERS_PROVENANCE = provenanceHash;
+  }
+
+  function setRevealTimestamp(uint256 newRevealTimeStamp) external onlyOwner {
+    revealTimeStamp = newRevealTimeStamp;
+  }
+
+  function emergencySetStartingIndexBlock() public onlyOwner {
+    require(startingIndex == 0, 'Starting index is already set');
+    startingIndexBlock = block.number;
   }
 
   function _beforeTokenTransfer(
@@ -87,4 +101,6 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   {
     return super.supportsInterface(interfaceId);
   }
+
+  // way to change base uri
 }
