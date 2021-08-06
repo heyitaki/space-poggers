@@ -7,23 +7,48 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
+//     *(((((((((,                                   ...................
+//  .##((((((((((((((((((((((*                  .............................
+//  ,###(((((((((((((((((##########(((*      ....................,,,,,,,,.......
+//   ,,####((((((((((((,,,,,,,,,,,*(#######..............,,,,,,,,,,,,,,,.,,,,,,,,,.
+//     ,,*####(((((((((              ,,,,,...........,,,,,,,,,,,,,,.,,,,/*****,,,,,*
+//        ,,*####((((((((              ...........,,,,,,,,,,,,***,,,,,*/*******,,,,,**
+//           ,,,(####(((((((          ..........,,,,,,,,,,,,,*****,,,,,********,,,,,,**
+//              .,,,#####((((((/     .........,,,,,,,,,,,,,,,,*/*,,,.,,,/****,,,,,,,,,**
+//                  ,,,,######(((((/ ........,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,**
+//                      .,,,*#####((((((,,..,,,,,,,,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,***
+//                           ,,,,(#####((((((*****************************************///
+//                                ,,,,######((((((***********************************////##/
+//                                   ,,,,,,/######(((((******************************///,,/####(
+//                                   .,,,,,*,,,,,######((((((***********************///*   ,,,(####(
+//                                    ,,,,,*******,,,,*######((((((/***************///*       ,,,*###(((
+//                                     *////(((((((((((*,,,,*#######(((((((******///(.           .,,###((((
+//                                       (//((((((((((((((((((,,,,,(#######((((((((#                ,*((((((((
+//                                         (//((((((((((((((((((((((*,,,,,(########(((((((((((((//(((((((((((((((
+//                                           .((((((((((((((((((((((((((###/,,,,,*#########((((((((((((((((((((((((
+//                                               (####((((((((((((#########(       .,,,,,,*(###########(((((((((((#
+//                                                     ##############(                       ,,,,,,,,,,*/(####(*,,
+
 contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   using SafeMath for uint256;
+  using Strings for uint256;
 
   bool public isSaleActive = false;
-  uint256 public startingIndex = 0;
-  uint256 public startingIndexBlock = 0;
-  uint256 public revealTimeStamp = 0;
+  uint256 public offsetIndex = 0;
+  uint256 public offsetIndexBlock = 0;
+  uint256 public revealTimeStamp = block.timestamp + (86400 * 7);
 
   // Constants
-  uint256 public constant TIER1_PRICE = .07 ether;
-  uint256 public constant TIER2_PRICE = .06 ether;
-  uint256 public constant TIER3_PRICE = .05 ether;
+  uint256 public constant TIER1_PRICE = .070 ether;
+  uint256 public constant TIER2_PRICE = .065 ether;
+  uint256 public constant TIER3_PRICE = .050 ether;
   uint256 public constant TIER1_NUM_TOKENS = 1;
-  uint256 public constant TIER2_NUM_TOKENS = 3;
-  uint256 public constant TIER3_NUM_TOKENS = 12;
+  uint256 public constant TIER2_NUM_TOKENS = 5;
+  uint256 public constant TIER3_NUM_TOKENS = 50;
   uint256 public constant MAX_SUPPLY = 12000;
-  string public POGGERS_PROVENANCE = ''; // Set once after launch, when tokens have been finalized
+  string public POGGERS_PROVENANCE = ''; // Set once right before launch, when tokens have been finalized
+
+  string private _baseURIExtended;
 
   constructor() ERC721('SpacePoggers', 'SP') {}
 
@@ -35,8 +60,23 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     isSaleActive = false;
   }
 
-  function getUnmintedSupply() public view returns (uint256) {
-    return MAX_SUPPLY.sub(totalSupply());
+  function withdraw() public onlyOwner {
+    uint256 balance = address(this).balance;
+    payable(msg.sender).transfer(balance);
+  }
+
+  function getTotalSupply() public view returns (uint256) {
+    return totalSupply();
+  }
+
+  function getPoggersByOwner(address _owner) public view returns (uint256[] memory) {
+    uint256 tokenCount = balanceOf(_owner);
+    uint256[] memory tokenIds = new uint256[](tokenCount);
+    for (uint256 i; i < tokenCount; i++) {
+      tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
+    }
+
+    return tokenIds;
   }
 
   function mintPoggerTier1() public payable {
@@ -61,10 +101,12 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function reservePoggers(uint256 numPoggers) public onlyOwner {
+    require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     _mintPoggers(numPoggers, msg.sender);
   }
 
   function giveAwayPogger(uint256 numPoggers, address recipient) external onlyOwner {
+    require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     _mintPoggers(numPoggers, recipient);
   }
 
@@ -72,6 +114,28 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     for (uint256 i = 0; i < numPoggers; i++) {
       _safeMint(recipient, totalSupply());
     }
+
+    if (
+      offsetIndexBlock == 0 && (totalSupply() == MAX_SUPPLY || block.timestamp >= revealTimeStamp)
+    ) {
+      offsetIndexBlock = block.number;
+    }
+  }
+
+  function setOffsetIndex() public {
+    require(offsetIndex == 0, 'Starting index has already been set');
+    require(offsetIndexBlock != 0, 'Starting index block must be set');
+
+    if (block.number.sub(offsetIndexBlock) > 255) {
+      offsetIndex = uint256(blockhash(block.number - 1)).mod(MAX_SUPPLY);
+    } else {
+      offsetIndex = uint256(blockhash(offsetIndexBlock)).mod(MAX_SUPPLY);
+    }
+  }
+
+  function emergencySetOffsetIndexBlock() public onlyOwner {
+    require(offsetIndex == 0, 'Starting index is already set');
+    offsetIndexBlock = block.number;
   }
 
   function setProvenanceHash(string memory provenanceHash) external onlyOwner {
@@ -82,9 +146,19 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     revealTimeStamp = newRevealTimeStamp;
   }
 
-  function emergencySetStartingIndexBlock() public onlyOwner {
-    require(startingIndex == 0, 'Starting index is already set');
-    startingIndexBlock = block.number;
+  function setBaseURI(string memory baseURI_) external onlyOwner {
+    _baseURIExtended = baseURI_;
+  }
+
+  function _baseURI() internal view virtual override returns (string memory) {
+    return _baseURIExtended;
+  }
+
+  function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    require(_exists(tokenId), 'ERC721Metadata: URI query for nonexistent token');
+    string memory base = _baseURI();
+    uint256 offsetId = tokenId.add(MAX_SUPPLY.sub(offsetIndex)).mod(MAX_SUPPLY);
+    return string(abi.encodePacked(base, offsetId.toString()));
   }
 
   function _beforeTokenTransfer(
@@ -103,10 +177,4 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   {
     return super.supportsInterface(interfaceId);
   }
-
-  // way to change base uri
-  // ability to send tokens to other wallets
-  // opensea integration
-  // ability to change price?
-  // withdraw?
 }
