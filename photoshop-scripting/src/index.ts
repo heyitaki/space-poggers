@@ -1,6 +1,7 @@
 //@include "../polyfills/json.js";
 //@include "../polyfills/object.js";
 //@include "./constants/index.js";
+//@include "./metadata.js";
 //@include "./photoshop/layers.js";
 //@include "./photoshop/save.js";
 //@include "./random.js";
