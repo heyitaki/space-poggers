@@ -111,8 +111,9 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function _mintPoggers(uint256 numPoggers, address recipient) internal {
+    uint256 supply = totalSupply();
     for (uint256 i = 0; i < numPoggers; i++) {
-      _safeMint(recipient, totalSupply());
+      _safeMint(recipient, supply + i);
     }
 
     if (
