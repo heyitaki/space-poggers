@@ -7,22 +7,22 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
-//     _____ ____  ___   ____________            
-//    / ___// __ \/   | / ____/ ____/            
-//    \__ \/ /_/ / /| |/ /   / __/               
-//   ___/ / ____/ ___ / /___/ /___               
+//     _____ ____  ___   ____________
+//    / ___// __ \/   | / ____/ ____/
+//    \__ \/ /_/ / /| |/ /   / __/
+//   ___/ / ____/ ___ / /___/ /___
 //  /____/_/  _/_/  |_\____/_____/________  _____
 //     / __ \/ __ \/ ____/ ____/ ____/ __ \/ ___/
-//    / /_/ / / / / / __/ / __/ __/ / /_/ /\__ \ 
-//   / ____/ /_/ / /_/ / /_/ / /___/ _, _/___/ / 
-//  /_/    \____/\____/\____/_____/_/ |_|/____/  
+//    / /_/ / / / / / __/ / __/ __/ / /_/ /\__ \
+//   / ____/ /_/ / /_/ / /_/ / /___/ _, _/___/ /
+//  /_/    \____/\____/\____/_____/_/ |_|/____/
 //
-                                             
+
 contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   using SafeMath for uint256;
   using Strings for uint256;
 
-  bool public isSaleActive = false;
+  bool public _isSaleActive = false;
   uint256 public offsetIndex = 0;
   uint256 public offsetIndexBlock = 0;
   uint256 public revealTimeStamp = block.timestamp + (86400 * 7);
@@ -38,15 +38,20 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   string public POGGERS_PROVENANCE = ''; // Set once right before launch, when tokens have been finalized
 
   string private _baseURIExtended;
+  string private _placeholderURI;
 
   constructor() ERC721('SpacePoggers', 'SP') {}
 
   function startSale() public onlyOwner {
-    isSaleActive = true;
+    _isSaleActive = true;
   }
 
   function pauseSale() public onlyOwner {
-    isSaleActive = false;
+    _isSaleActive = false;
+  }
+
+  function isSaleActive() public view returns (bool) {
+    return _isSaleActive;
   }
 
   function withdraw() public onlyOwner {
@@ -69,21 +74,21 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function mintPoggerTier1() public payable {
-    require(isSaleActive, 'Sale must be active to mint Poggers');
+    require(_isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER1_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER1_PRICE <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER1_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier2() public payable {
-    require(isSaleActive, 'Sale must be active to mint Poggers');
+    require(_isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER2_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER2_PRICE.mul(TIER2_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER2_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier3() public payable {
-    require(isSaleActive, 'Sale must be active to mint Poggers');
+    require(_isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
     require(TIER3_PRICE.mul(TIER3_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
     _mintPoggers(TIER3_NUM_TOKENS, msg.sender);
@@ -144,11 +149,19 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     return _baseURIExtended;
   }
 
+  function setPlaceholderURI(string memory placeholderURI) external onlyOwner {
+    _placeholderURI = placeholderURI;
+  }
+
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     require(_exists(tokenId), 'ERC721Metadata: URI query for nonexistent token');
-    string memory base = _baseURI();
-    uint256 offsetId = tokenId.add(MAX_SUPPLY.sub(offsetIndex)).mod(MAX_SUPPLY);
-    return string(abi.encodePacked(base, offsetId.toString()));
+    if (totalSupply() == MAX_SUPPLY || block.timestamp >= revealTimeStamp) {
+      string memory base = _baseURI();
+      uint256 offsetId = tokenId.add(MAX_SUPPLY.sub(offsetIndex)).mod(MAX_SUPPLY);
+      return string(abi.encodePacked(base, offsetId.toString()));
+    } else {
+      return _placeholderURI;
+    }
   }
 
   function _beforeTokenTransfer(
