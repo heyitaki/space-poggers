@@ -36,7 +36,7 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   uint256 public constant TIER2_NUM_TOKENS = 5;
   uint256 public constant TIER3_NUM_TOKENS = 10;
   uint256 public constant TIER4_NUM_TOKENS = 50;
-  uint256 public constant MAX_SUPPLY = 12000;
+  uint256 public constant MAX_SUPPLY = 5;
   string public POGGERS_PROVENANCE = ''; // Set once right before launch, when tokens have been finalized
 
   string private _baseURIExtended;
@@ -155,6 +155,10 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
       offsetIndex = uint256(blockhash(block.number - 1)).mod(MAX_SUPPLY);
     } else {
       offsetIndex = uint256(blockhash(offsetIndexBlock)).mod(MAX_SUPPLY);
+    }
+
+    if (offsetIndex == 0) {
+      offsetIndex = 1;
     }
   }
 
