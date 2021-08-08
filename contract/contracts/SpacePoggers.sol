@@ -36,8 +36,8 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   uint256 public constant TIER2_NUM_TOKENS = 5;
   uint256 public constant TIER3_NUM_TOKENS = 10;
   uint256 public constant TIER4_NUM_TOKENS = 50;
-  uint256 public constant MAX_SUPPLY = 5;
-  string public POGGERS_PROVENANCE = ''; // Set once right before launch, when tokens have been finalized
+  uint256 public constant MAX_SUPPLY = 12000;
+  string public POGGERS_PROVENANCE = '';
 
   string private _baseURIExtended;
   string private _preRevealURI;
@@ -119,10 +119,17 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     _mintPoggers(numPoggers, msg.sender);
   }
 
-  function airdropPogger(uint256 numPoggers, address recipient) external onlyOwner {
+  function airdropPogger(uint256 numPoggers, address recipient) public onlyOwner {
     require(totalSupply().add(numPoggers) <= MAX_SUPPLY, 'Sale would exceed max supply');
     _mintPoggers(numPoggers, recipient);
     emit TokenMinted(totalSupply());
+  }
+
+  function airdropPoggerToMany(address[] memory recipients) external onlyOwner {
+    require(totalSupply().add(recipients.length) <= MAX_SUPPLY, 'Sale would exceed max supply');
+    for (uint256 i = 0; i < recipients.length; i++) {
+      airdropPogger(1, recipients[i]);
+    }
   }
 
   function airdropThirteenthPogger(address recipient) external onlyOwner {
