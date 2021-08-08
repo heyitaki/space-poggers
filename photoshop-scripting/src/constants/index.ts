@@ -1,10 +1,11 @@
 //@include "./background.js";
-//@include "./character.js";
-//@include "./eye.js";
-//@include "./hat.js";
-//@include "./mouth.js";
-//@include "./neck.js";
-//@include "./torso.js";
+//@include "./blacklist.js";
+//@include "./clothing.js";
+//@include "./eyewear.js";
+//@include "./headwear.js";
+//@include "./mouthpiece.js";
+//@include "./neckwear.js";
+//@include "./tribe.js";
 
 const enum PoggerTraits {
   Background = "Background",

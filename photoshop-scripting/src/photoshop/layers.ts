@@ -18,11 +18,14 @@ const getLayerByName = (name: string, layers: Layers): Layer | null => {
 };
 
 const getLayerByPath = (path: string[]) => {
+  // $.writeln(path);
   let layers: Layers | null = app.activeDocument.layers;
   let layer: Layer | null = null;
   for (let i = 0; i < path.length; i++) {
     layer = getLayerByName(path[i], layers);
+    // $.writeln(layer + " " + layer?.typename);
     if (isLayerSet(layer)) {
+      // $.writeln("islayerset");
       layers = layer.layers;
     }
   }
@@ -45,15 +48,13 @@ const setLayers = (traits: Partial<PoggerCombo>) => {
   // Hide all art layers
   hideLayers(app.activeDocument.layers);
 
-  // Show white background
-  const whiteLayer = getLayerByPath(["WHITE", "<Group>"]);
-  if (whiteLayer) whiteLayer.visible = true;
-
   // Show specified layers
   for (const traitName in traits) {
     const path = traitPathMap[traitName as PoggerTraits];
     path.push(traits[traitName as PoggerTraits]!);
+    // $.writeln(path);
     const layer = getLayerByPath(path);
+    // $.writeln(layer);
     if (layer) layer.visible = true;
   }
 };
