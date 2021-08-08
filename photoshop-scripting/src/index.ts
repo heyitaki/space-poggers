@@ -8,9 +8,14 @@
 //@include "./utils.js";
 
 // // Minting specific combo
-// const combo = {
-//   background: BackgroundColor.Blueberry,
-//   character: CharacterBase.Bee,
+// const combo: Partial<PoggerCombo> = {
+//   Background: BackgroundColor.Blueberry,
+//   Tribe: Tribe.Bee,
+//   Mouthpiece: Mouthpiece.BambooShoot,
+//   Headwear: Headwear.BaseballCap,
+//   Eyewear: Eyewear.CateyeGlasses,
+//   Neckwear: Neckwear.Bandana,
+//   Clothing: Clothing.Blouse
 // };
 // const filename = getFilename(combo);
 // setLayers(combo);
@@ -51,10 +56,10 @@ const characterCounts = {
 while (Object.keys(doneIds).length < NUM_TOKENS_TO_MINT) {
   const combo = getPoggerCombo();
   const key = format(combo.Tribe)!;
-  if (characterCounts[key] < 996) {
-    characterCounts[key]++;
-  } else {
+  if (characterCounts[key] >= 995 || isBlacklisted(combo)) {
     continue;
+  } else {
+    characterCounts[key]++;
   }
 
   const memoizedCombo = getFilename(combo);

@@ -20,7 +20,7 @@ const getRandomTraitFromEnum = (rarities: Rarities) => {
 
 const getPoggerCombo = (): Partial<PoggerCombo> => {
   const backgroundColor = getRandomTraitFromEnum(backgroundRarities);
-  const characterBase = getRandomTraitFromObject(Tribe);
+  const tribe = getRandomTraitFromObject(Tribe);
   const mouthpiece = getRandomTraitFromEnum(mouthpieceRarities);
   const headwear = getRandomTraitFromEnum(headwearRarities);
   const eyewear = getRandomTraitFromEnum(eyewearRarities);
@@ -29,7 +29,7 @@ const getPoggerCombo = (): Partial<PoggerCombo> => {
 
   const combo: Partial<PoggerCombo> = {};
   if (backgroundColor !== NONE) combo.Background = backgroundColor;
-  if (characterBase !== NONE) combo.Tribe = characterBase;
+  if (tribe !== NONE) combo.Tribe = tribe;
   if (mouthpiece !== NONE) combo.Mouthpiece = mouthpiece;
   if (headwear !== NONE) combo.Headwear = headwear;
   if (eyewear !== NONE) combo.Eyewear = eyewear;
