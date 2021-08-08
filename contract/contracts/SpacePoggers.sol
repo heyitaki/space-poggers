@@ -22,7 +22,7 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   using SafeMath for uint256;
   using Strings for uint256;
 
-  bool public _isSaleActive = false;
+  bool public isSaleActive = false;
   uint256 public offsetIndex = 0;
   uint256 public offsetIndexBlock = 0;
   uint256 public revealTimeStamp = block.timestamp + (86400 * 7);
@@ -30,28 +30,27 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   // Constants
   uint256 public constant TIER1_PRICE = .070 ether;
   uint256 public constant TIER2_PRICE = .065 ether;
-  uint256 public constant TIER3_PRICE = .050 ether;
+  uint256 public constant TIER3_PRICE = .060 ether;
+  uint256 public constant TIER4_PRICE = .050 ether;
   uint256 public constant TIER1_NUM_TOKENS = 1;
   uint256 public constant TIER2_NUM_TOKENS = 5;
-  uint256 public constant TIER3_NUM_TOKENS = 50;
+  uint256 public constant TIER3_NUM_TOKENS = 10;
+  uint256 public constant TIER4_NUM_TOKENS = 50;
   uint256 public constant MAX_SUPPLY = 12000;
   string public POGGERS_PROVENANCE = ''; // Set once right before launch, when tokens have been finalized
 
   string private _baseURIExtended;
-  string private _placeholderURI;
+  string private _preRevealURI;
+  string private _thirteenthPoggerBaseURI;
 
-  constructor() ERC721('SpacePoggers', 'SP') {}
+  constructor() ERC721('Space Poggers', 'SP') {}
 
   function startSale() public onlyOwner {
-    _isSaleActive = true;
+    isSaleActive = true;
   }
 
   function pauseSale() public onlyOwner {
-    _isSaleActive = false;
-  }
-
-  function isSaleActive() public view returns (bool) {
-    return _isSaleActive;
+    isSaleActive = false;
   }
 
   function withdraw() public onlyOwner {
@@ -74,34 +73,50 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
   }
 
   function mintPoggerTier1() public payable {
-    require(_isSaleActive, 'Sale must be active to mint Poggers');
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER1_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
-    require(TIER1_PRICE <= msg.value, 'Not enough ether sent');
+    require(TIER1_PRICE <= msg.value, 'Not enough ether sent (<0.07 ETH)');
     _mintPoggers(TIER1_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier2() public payable {
-    require(_isSaleActive, 'Sale must be active to mint Poggers');
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER2_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
-    require(TIER2_PRICE.mul(TIER2_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
+    require(TIER2_PRICE.mul(TIER2_NUM_TOKENS) <= msg.value, 'Not enough ether sent (<0.325 ETH)');
     _mintPoggers(TIER2_NUM_TOKENS, msg.sender);
   }
 
   function mintPoggerTier3() public payable {
-    require(_isSaleActive, 'Sale must be active to mint Poggers');
+    require(isSaleActive, 'Sale must be active to mint Poggers');
     require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
-    require(TIER3_PRICE.mul(TIER3_NUM_TOKENS) <= msg.value, 'Not enough ether sent');
+    require(TIER3_PRICE.mul(TIER3_NUM_TOKENS) <= msg.value, 'Not enough ether sent (<0.6 ETH)');
     _mintPoggers(TIER3_NUM_TOKENS, msg.sender);
   }
 
+  function mintPoggerTier4() public payable {
+    require(isSaleActive, 'Sale must be active to mint Poggers');
+    require(totalSupply().add(TIER4_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
+    require(TIER4_PRICE.mul(TIER4_NUM_TOKENS) <= msg.value, 'Not enough ether sent (<2.5 ETH)');
+    _mintPoggers(TIER4_NUM_TOKENS, msg.sender);
+  }
+
   function reservePoggers(uint256 numPoggers) public onlyOwner {
-    require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
+    require(totalSupply().add(numPoggers) <= MAX_SUPPLY, 'Sale would exceed max supply');
     _mintPoggers(numPoggers, msg.sender);
   }
 
-  function giveAwayPogger(uint256 numPoggers, address recipient) external onlyOwner {
-    require(totalSupply().add(TIER3_NUM_TOKENS) <= MAX_SUPPLY, 'Sale would exceed max supply');
+  function airdropPogger(uint256 numPoggers, address recipient) external onlyOwner {
+    require(totalSupply().add(numPoggers) <= MAX_SUPPLY, 'Sale would exceed max supply');
     _mintPoggers(numPoggers, recipient);
+  }
+
+  function airdropThirteenthPogger(address recipient) external onlyOwner {
+    require(
+      !isSaleActive && (totalSupply() >= MAX_SUPPLY || block.timestamp >= revealTimeStamp),
+      'The 13th pogger will only be airdropped once the sale has concluded'
+    );
+    uint256 tokenId = totalSupply() + MAX_SUPPLY; // Disallow 13th pogger ids from 0-12000 range
+    _safeMint(recipient, tokenId);
   }
 
   function _mintPoggers(uint256 numPoggers, address recipient) internal {
@@ -111,7 +126,7 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     }
 
     if (
-      offsetIndexBlock == 0 && (totalSupply() == MAX_SUPPLY || block.timestamp >= revealTimeStamp)
+      offsetIndexBlock == 0 && (totalSupply() >= MAX_SUPPLY || block.timestamp >= revealTimeStamp)
     ) {
       offsetIndexBlock = block.number;
     }
@@ -149,18 +164,25 @@ contract SpacePoggers is ERC721, ERC721Enumerable, Ownable {
     return _baseURIExtended;
   }
 
-  function setPlaceholderURI(string memory placeholderURI) external onlyOwner {
-    _placeholderURI = placeholderURI;
+  function setPreRevealURI(string memory preRevealURI) external onlyOwner {
+    _preRevealURI = preRevealURI;
+  }
+
+  function setThirteenthPoggerBaseURI(string memory thirteenthPoggerBaseURI) external onlyOwner {
+    _thirteenthPoggerBaseURI = thirteenthPoggerBaseURI;
   }
 
   function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
     require(_exists(tokenId), 'ERC721Metadata: URI query for nonexistent token');
-    if (totalSupply() == MAX_SUPPLY || block.timestamp >= revealTimeStamp) {
-      string memory base = _baseURI();
-      uint256 offsetId = tokenId.add(MAX_SUPPLY.sub(offsetIndex)).mod(MAX_SUPPLY);
-      return string(abi.encodePacked(base, offsetId.toString()));
+    if (totalSupply() >= MAX_SUPPLY || block.timestamp >= revealTimeStamp) {
+      if (tokenId < MAX_SUPPLY) {
+        uint256 offsetId = tokenId.add(MAX_SUPPLY.sub(offsetIndex)).mod(MAX_SUPPLY);
+        return string(abi.encodePacked(_baseURI(), offsetId.toString()));
+      } else {
+        return string(abi.encodePacked(_thirteenthPoggerBaseURI, tokenId.toString()));
+      }
     } else {
-      return _placeholderURI;
+      return _preRevealURI;
     }
   }
 
