@@ -11,6 +11,7 @@
       "program": "${workspaceFolder}/dist/index.js",
       "stopOnEntry": false,
       "preLaunchTask": "tsc: build - tsconfig.json",
+      "trace": false,
       "targetSpecifier": "photoshop-150.064"
     }
   ]

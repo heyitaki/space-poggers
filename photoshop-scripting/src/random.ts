@@ -19,21 +19,21 @@ const getRandomTraitFromEnum = (rarities: Rarities) => {
 };
 
 const getPoggerCombo = (): Partial<PoggerCombo> => {
-  const backgroundColor = getRandomTraitFromObject(BackgroundColor);
-  const characterBase = getRandomTraitFromObject(CharacterBase);
-  const mouthAccessory = getRandomTraitFromEnum(mouthAccessoryRarities);
-  const hatAccessory = getRandomTraitFromEnum(hatAccessoryRarities);
-  const eyeAccessory = getRandomTraitFromEnum(eyeAccessoryRarities);
-  const neckAccessory = getRandomTraitFromEnum(neckAccessoryRarities);
-  const torsoAccessory = getRandomTraitFromEnum(torsoAccessoryRarities);
+  const backgroundColor = getRandomTraitFromEnum(backgroundRarities);
+  const characterBase = getRandomTraitFromObject(Tribe);
+  const mouthpiece = getRandomTraitFromEnum(mouthpieceRarities);
+  const headwear = getRandomTraitFromEnum(headwearRarities);
+  const eyewear = getRandomTraitFromEnum(eyewearRarities);
+  const neckwear = getRandomTraitFromEnum(neckwearRarities);
+  const clothing = getRandomTraitFromEnum(clothingRarities);
 
   const combo: Partial<PoggerCombo> = {};
-  if (backgroundColor !== NONE) combo.background = backgroundColor;
-  if (characterBase !== NONE) combo.character = characterBase;
-  if (mouthAccessory !== NONE) combo.mouth = mouthAccessory;
-  if (hatAccessory !== NONE) combo.hat = hatAccessory;
-  if (eyeAccessory !== NONE) combo.eye = eyeAccessory;
-  if (neckAccessory !== NONE) combo.neck = neckAccessory;
-  if (torsoAccessory !== NONE) combo.torso = torsoAccessory;
+  if (backgroundColor !== NONE) combo.Background = backgroundColor;
+  if (characterBase !== NONE) combo.Tribe = characterBase;
+  if (mouthpiece !== NONE) combo.Mouthpiece = mouthpiece;
+  if (headwear !== NONE) combo.Headwear = headwear;
+  if (eyewear !== NONE) combo.Eyewear = eyewear;
+  if (neckwear !== NONE) combo.Neckwear = neckwear;
+  if (clothing !== NONE) combo.Clothing = clothing;
   return combo;
 };

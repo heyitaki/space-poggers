@@ -1,14 +1,14 @@
 const getFilename = (traits: Partial<PoggerCombo>) => {
-  return `${traits.background || ""}-${traits.character || ""}-${
-    traits.mouth || ""
-  }-${traits.hat || ""}-${traits.eye || ""}-${traits.neck || ""}-${
-    traits.torso || ""
+  return `${traits.Background || ""}-${traits.Tribe || ""}-${
+    traits.Mouthpiece || ""
+  }-${traits.Headwear || ""}-${traits.Eyewear || ""}-${traits.Neckwear || ""}-${
+    traits.Clothing || ""
   }.png`;
 };
 
 const saveAsPng = (filename: string) => {
   // Create folder if necessary
-  const dest = new Folder("~/spacepoggers");
+  const dest = new Folder("~/spacepoggers/images");
   if (!dest.exists) {
     dest.create();
   }

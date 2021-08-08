@@ -1,8 +1,8 @@
-const CharacterBase = {
+const Tribe = {
   Bee: "BEE",
   Cat: "CAT",
   Dog: "DOG",
-  Elephant: "ELEPAHANT",
+  Elephant: "ELEPHANT",
   Frog: "FROG",
   Gorilla: "GORILLA",
   Llama: "LLAMA",
