@@ -56,7 +56,7 @@ const characterCounts = {
 while (Object.keys(doneIds).length < NUM_TOKENS_TO_MINT) {
   const combo = getPoggerCombo();
   const key = format(combo.Tribe)!;
-  if (characterCounts[key] >= 995 || isBlacklisted(combo)) {
+  if (characterCounts[key] > 995 || isBlacklisted(combo)) {
     continue;
   } else {
     characterCounts[key]++;
