@@ -1,3 +1,6 @@
+import multiprocessing as mp
+import os
+from functools import partial
 from random import randrange, uniform
 
 from PIL import Image
@@ -28,7 +31,6 @@ tribe_list = [
     "Red Panda",
     "Turtle",
 ]
-tribe_counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 special_tribe_list = [
     "Alien Cat",
     "Bubblegum Gorilla",
@@ -43,7 +45,6 @@ special_tribe_list = [
     "Silver Bee",
     "Zombie Dog",
 ]
-special_tribe_counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 clothing_list = [
     ("Astronaut Suit", 0.0025),
     ("Band Shirt", 0.04),
@@ -59,7 +60,7 @@ clothing_list = [
     ("Loose Top", 0.04),
     ("Mesh Shirt", 0.04),
     ("Nifty Hoodie", 0.0025),
-    ("None", 0.38),
+    ("None", 0.34),
     ("Polo", 0.04),
     ("Shaggy Sweater", 0.04),
     ("Smoking Jacket", 0.0025),
@@ -104,7 +105,7 @@ headwear_list = [
     ("Fedora", 0.04),
     ("Fisherman Hat", 0.04),
     ("Miner Hat", 0.01),
-    ("None", 0.38),
+    ("None", 0.42),
     ("Pickelhaube", 0.04),
     ("Propeller Hat", 0.01),
     ("Rainbow Afro", 0.01),
@@ -164,31 +165,16 @@ def get_random_accessory(list):
     raise Exception()
 
 
-def get_random_tribe(special=False):
-    counts = special_tribe_counts if special else tribe_counts
-    list = special_tribe_list if special else tribe_list
-    rand = randrange(len(counts))
-    counts[rand] += 1
-    ret = list[rand]
-    if (
-        counts[rand]
-        == (constants.MAX_SPECIAL_TRIBE_COUNT if special else constants.MAX_TRIBE_COUNT)
-        - 1
-    ):
-        counts.pop(rand)
-        list.pop(rand)
-    return ret
-
-
 def get_image(parent, name):
     return Image.open(f"./Layers/{parent}/{name}.png")
 
 
-memo = set()
-for _ in range(constants.NUM_TOKENS_TO_CREATE):
+def create_image(memo, special):
     # Select combo
     background = get_random_accessory(background_list)
-    tribe = get_random_tribe()
+    tribe = (special_tribe_list if special else tribe_list)[
+        mp.current_process()._identity[0] - 1
+    ]
     clothing = get_random_accessory(clothing_list)
     neckwear = get_random_accessory(neckwear_list)
     headwear = get_random_accessory(headwear_list)
@@ -199,8 +185,9 @@ for _ in range(constants.NUM_TOKENS_TO_CREATE):
     filename = f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
     key = hash(filename)
     if key in memo:
-        continue
+        return False
     memo.add(key)
+    # print("memo", memo)
 
     # Create image by superimposing layers
     background_image = get_image("Background", background)
@@ -229,3 +216,31 @@ for _ in range(constants.NUM_TOKENS_TO_CREATE):
 
     # Save image
     background_image.save(filename, "PNG")
+    return True
+
+
+def create_images(_):
+    special = False
+    memo = set()
+    while len(memo) < (
+        constants.MAX_SPECIAL_TRIBE_COUNT if special else constants.MAX_TRIBE_COUNT
+    ):
+        print(
+            memo,
+            len(memo),
+            constants.MAX_SPECIAL_TRIBE_COUNT if special else constants.MAX_TRIBE_COUNT,
+            len(memo)
+            < (
+                constants.MAX_SPECIAL_TRIBE_COUNT
+                if special
+                else constants.MAX_TRIBE_COUNT
+            ),
+        )
+        create_image(memo, special)
+
+
+if __name__ == "__main__":
+    pool = mp.Pool(12)
+    pool.map(create_images, range(12))
+    pool.close()
+    pool.join()
