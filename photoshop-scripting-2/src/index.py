@@ -184,6 +184,7 @@ def get_image(parent, name):
     return Image.open(f"./Layers/{parent}/{name}.png")
 
 
+memo = set()
 for _ in range(constants.NUM_TOKENS_TO_CREATE):
     # Select combo
     background = get_random_accessory(background_list)
@@ -193,6 +194,13 @@ for _ in range(constants.NUM_TOKENS_TO_CREATE):
     headwear = get_random_accessory(headwear_list)
     eyewear = get_random_accessory(eyewear_list)
     mouthpiece = get_random_accessory(mouthpiece_list)
+
+    # Ensure this is unique combo
+    filename = f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
+    key = hash(filename)
+    if key in memo:
+        continue
+    memo.add(key)
 
     # Create image by superimposing layers
     background_image = get_image("Background", background)
@@ -220,6 +228,4 @@ for _ in range(constants.NUM_TOKENS_TO_CREATE):
         background_image.paste(mouthpiece_image, (0, 0), mouthpiece_image)
 
     # Save image
-    background_image.save(
-        f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
-    )
+    background_image.save(filename, "PNG")
