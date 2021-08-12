@@ -24,6 +24,16 @@ def create_image(memo, special):
         mouthpiece,
     ) = combo
 
+    # combo = (
+    #     'Bee',
+    #     'Starry Space',
+    #     'None',
+    #     'None',
+    #     'None',
+    #     'None',
+    #     'None',
+    # )
+
     # Ensure this is unique combo
     filename = f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
     key = hash(filename)
