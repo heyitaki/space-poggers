@@ -1,5 +1,6 @@
 MAX_TRIBE_COUNT = 2  # 996
 MAX_SPECIAL_TRIBE_COUNT = 4
+WILDCARD = "*"
 
 ### Tribes ###
 

@@ -1,18 +1,10 @@
 import multiprocessing as mp
-from random import uniform
 
 from PIL import Image
 
 import constants
-
-
-def get_random_accessory(list):
-    rand = uniform(0, 1) / sum(tup[1] for tup in list)
-    for i in range(len(list)):
-        rand -= list[i][1]
-        if rand <= 0:
-            return list[i][0]
-    raise Exception()
+from blacklist import is_blacklisted
+from combo import get_combo
 
 
 def get_image(parent, name):
@@ -21,20 +13,21 @@ def get_image(parent, name):
 
 def create_image(memo, special):
     # Select combo
-    background = get_random_accessory(constants.BACKGROUND_LIST)
-    tribe = (constants.SPECIAL_TRIBE_LIST if special else constants.TRIBE_LIST)[
-        mp.current_process()._identity[0] - 1
-    ]
-    clothing = get_random_accessory(constants.CLOTHING_LIST)
-    neckwear = get_random_accessory(constants.NECKWEAR_LIST)
-    headwear = get_random_accessory(constants.HEADWEAR_LIST)
-    eyewear = get_random_accessory(constants.EYEWEAR_LIST)
-    mouthpiece = get_random_accessory(constants.MOUTHPIECE_LIST)
+    combo = get_combo(special, mp.current_process()._identity[0] - 1)  # type: ignore
+    (
+        tribe,
+        background,
+        clothing,
+        neckwear,
+        headwear,
+        eyewear,
+        mouthpiece,
+    ) = combo
 
     # Ensure this is unique combo
     filename = f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
     key = hash(filename)
-    if key in memo:
+    if key in memo or is_blacklisted(combo):
         return False
     memo.add(key)
 
