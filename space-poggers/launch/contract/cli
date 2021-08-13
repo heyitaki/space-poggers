@@ -1,0 +1,5 @@
+npx hardhat run scripts/deploy.js --network rinkeby
+npx hardhat verify --network rinkeby 0x12070A21cd3f123a0f0F8C36Df04171ef9739D42
+
+npx hardhat run scripts/deploy.js --network mainnet
+npx hardhat verify --network mainnet 0x4a8B01E437C65FA8612e8b699266c0e0a98FF65c
