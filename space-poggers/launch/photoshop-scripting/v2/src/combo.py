@@ -16,7 +16,7 @@ def get_combo(special, tribe_idx):
     tribe = (constants.SPECIAL_TRIBE_LIST if special else constants.TRIBE_LIST)[
         tribe_idx
     ]
-    background = get_random_accessory(constants.BACKGROUND_LIST)
+    background = get_random_accessory(constants.SPECIAL_BACKGROUND_LIST if special else constants.BACKGROUND_LIST)
     clothing = get_random_accessory(constants.CLOTHING_LIST)
     neckwear = get_random_accessory(constants.NECKWEAR_LIST)
     headwear = get_random_accessory(constants.HEADWEAR_LIST)

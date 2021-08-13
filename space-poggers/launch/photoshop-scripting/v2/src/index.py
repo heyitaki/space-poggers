@@ -24,18 +24,26 @@ def create_image(memo, special):
         mouthpiece,
     ) = combo
 
-    # combo = (
-    #     'Bee',
+    # (
+    #     tribe,
+    #     background,
+    #     clothing,
+    #     neckwear,
+    #     headwear,
+    #     eyewear,
+    #     mouthpiece,
+    # ) = (
+    #     'Bubblegum Gorilla',
     #     'Starry Space',
     #     'None',
+    #     'Bib',
+    #     'Propeller Hat',
     #     'None',
-    #     'None',
-    #     'None',
-    #     'None',
+    #     'Pacifier',
     # )
 
     # Ensure this is unique combo
-    filename = f"./Combined/{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
+    filename = f"./Combined/{'Special/' if special else ''}{tribe}-{background}-{clothing}-{neckwear}-{headwear}-{eyewear}-{mouthpiece}.PNG"
     key = hash(filename)
     if key in memo or is_blacklisted(combo):
         return False
@@ -67,6 +75,7 @@ def create_images(special):
         constants.MAX_SPECIAL_TRIBE_COUNT if special else constants.MAX_TRIBE_COUNT
     ):
         create_image(memo, special)
+        print(f'Finished creating image {len(memo)}/{constants.MAX_SPECIAL_TRIBE_COUNT if special else constants.MAX_TRIBE_COUNT}')
 
 
 if __name__ == "__main__":
@@ -75,3 +84,4 @@ if __name__ == "__main__":
     pool.map(create_images, [generate_special] * 12)
     pool.close()
     pool.join()
+    # create_image('', generate_special)

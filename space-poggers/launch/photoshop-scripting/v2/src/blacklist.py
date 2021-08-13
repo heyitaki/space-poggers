@@ -1,27 +1,22 @@
-# type: ignore
-
-import constants
 from combo import get_combo_object
 
 
 def is_blacklisted(combo):
     obj = get_combo_object(combo)
-    if obj.mouthpiece == "Harmonica":
-        return True
-    elif obj.tribe == "Dog":
+    if obj["tribe"] == "Dog":
         return (
-            obj.eyewear == "Sunglasses"
-            or obj.eyewear == "3D Glasses"
-            or obj.eyewear == "Prince Nez"
-            or obj.eyewear == "Swim Goggles"
-            or obj.eyewear == "Hypno Glasses"
+            obj["eyewear"] == "Sunglasses"
+            or obj["eyewear"] == "3D Glasses"
+            or obj["eyewear"] == "Prince Nez"
+            or obj["eyewear"] == "Swim Goggles"
+            or obj["eyewear"] == "Hypno Glasses"
         )
-    elif obj.tribe == "Elephant":
+    elif obj["tribe"] == "Elephant":
         return (
-            obj.eyewear == "Sunglasses"
-            or obj.eyewear == "3D Glasses"
-            or obj.eyewear == "Ski Goggles"
-            or obj.eyewear == "Swim Goggles"
+            obj["eyewear"] == "Sunglasses"
+            or obj["eyewear"] == "3D Glasses"
+            or obj["eyewear"] == "Ski Goggles"
+            or obj["eyewear"] == "Swim Goggles"
         )
 
 
