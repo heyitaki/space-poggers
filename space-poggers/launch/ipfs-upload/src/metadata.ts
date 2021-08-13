@@ -1,63 +1,30 @@
-import fs from 'fs';
+import { PoggerCombo } from './constants';
 
-export const uploadMetadataToIpfs = () => {};
-
-export const writeJsonToFile = (filename: string, json: string) => {
-  const path = `~/spacepoggers/metadata/${filename}`;
-  fs.writeFile(filename, json, () => {});
-};
-
-export const getComboFromFilename = (filename: string): Partial<PoggerCombo> => {
-  const tokens = filename.split('.')[0].split('-');
-  const combo = {} as Partial<PoggerCombo>;
-
+export const getComboFromFilename = (filename: string): PoggerCombo => {
   // Same ordering as in getFilename in photoshop-scripting
-  combo.background = tokens[0];
-  combo.character = tokens[1];
-  combo.mouth = tokens[2];
-  combo.hat = tokens[3];
-  combo.eye = tokens[4];
-  combo.neck = tokens[5];
-  combo.torso = tokens[6];
-
-  return combo;
+  const tokens = filename.split('.')[0].split('-');
+  return {
+    Tribe: tokens[0],
+    Background: tokens[1],
+    Clothing: tokens[2],
+    Neckwear: tokens[3],
+    Headwear: tokens[4],
+    Eyewear: tokens[5],
+    Mouthpiece: tokens[6],
+  };
 };
 
-export const getMetadata = (filename: string, combo: Partial<PoggerCombo>) => {
+export const getMetadataJson = (ipfsAddress: string, combo: PoggerCombo) => {
   const attributes = [];
-  const formattedCombo = formatCombo(combo);
-  for (const key in formattedCombo) {
+  for (const key in combo) {
     attributes.push({
       trait_type: key,
-      value: formattedCombo[key],
+      value: combo[key as keyof PoggerCombo],
     });
   }
 
   return {
     attributes,
-    image: filename,
+    image: ipfsAddress,
   };
-};
-
-export const formatCombo = (combo: Partial<PoggerCombo>) => {
-  const formattedCombo: { [key: string]: string } = {};
-  for (const key of ['Background', 'Character', 'Eye', 'Hat', 'Mouth', 'Neck', 'Torso']) {
-    formattedCombo[key] = format(combo[key.toLowerCase() as PoggerTraits]) || 'None';
-  }
-
-  return formattedCombo;
-};
-
-const format = (str?: string) => {
-  return (
-    str &&
-    str
-      .split(' ')
-      .map((str) => capitalize(str))
-      .join(' ')
-  );
-};
-
-const capitalize = (str: string) => {
-  return str[0].toUpperCase() + str.substring(1).toLowerCase();
 };
