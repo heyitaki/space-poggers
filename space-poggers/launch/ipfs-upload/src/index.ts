@@ -39,29 +39,29 @@ const main = async () => {
     console.log(files, imgPath);
 
     // Batch to avoid "too many open files" error
-    const BATCH_SIZE = 10;
-    for (let j = 0; j < NUM_TOKENS_TO_MINT / BATCH_SIZE; j++) {
+    const BATCH_SIZE = 12;
+    const NUM_BATCHES = Math.ceil(NUM_TOKENS_TO_MINT / BATCH_SIZE);
+    for (let j = 0; j < NUM_BATCHES; j++) {
       const promises: Promise<any>[] = [];
-      console.log(`Starting batch ${j+1}/${NUM_TOKENS_TO_MINT / BATCH_SIZE}...`)
-      await delay(1000)
+      console.log(`Starting batch ${j + 1}/${NUM_BATCHES}...`);
 
       // Loop through files
-      for (let i = BATCH_SIZE*j; i < (BATCH_SIZE+1)*j; i++) {
+      for (let i = BATCH_SIZE * j; i < Math.min(NUM_TOKENS_TO_MINT, BATCH_SIZE * (j + 1)); i++) {
         const tokenId = tokenIdQueue[i];
         const file = files[tokenId];
-  
+
         // Upload img to IPFS
-        if (i % 2 == 0) await delay(1000);
+        if (i % 4 == 0) await delay(1000);
         const filepath = path.join(imgPath, file);
-        console.log(`(${i + 1}/${files.length}) Uploaded image to IPFS: ${file}`)
+        console.log(`(${i + 1}/${files.length}) Uploaded image to IPFS: ${file}`);
         promises.push(
           pinata.pinFromFS(filepath).then((data) => {
             console.log(`(${i + 1}/${files.length}) Uploaded image to IPFS: ${file}`);
-  
+
             const ipfs = `ipfs://${data.IpfsHash}`;
             unpinList.push(data.IpfsHash);
             const promises = [];
-  
+
             // Save metadata json to file
             const combo = getComboFromFilename(file);
             const metadata = getMetadataJson(ipfs, combo);
@@ -73,7 +73,7 @@ const main = async () => {
                   console.log(`(${i + 1}/${files.length}) Finished writing token metadata to file`),
                 ),
             );
-  
+
             // Calculate image hash & save provenance data
             promises.push(
               createHashFromFile(filepath)
@@ -89,7 +89,7 @@ const main = async () => {
                 })
                 .then(() => console.log(`(${i + 1}/${files.length}) Calculated image hash`)),
             );
-  
+
             return Promise.all(promises);
           }),
         );
@@ -97,7 +97,6 @@ const main = async () => {
 
       await Promise.all(promises);
     }
-    
   } catch (e) {
     // Catch anything bad that happens
     console.error("We've thrown! Whoops!", e);
@@ -143,20 +142,63 @@ const main = async () => {
 const unpinAll = async () => {
   const data = fs.readFileSync(path.join(BASE_PATH, 'unpin.json'));
   const ipfsHashes = JSON.parse(data.toString());
-  const promises = [];
-  for (let i = 0; i < ipfsHashes.length; i++) {
-    promises.push(
-      pinata
-        .unpin(ipfsHashes[i])
-        .then(() => console.log(`${i + 1}/${ipfsHashes.length} Unpinned file from IPFS`)),
-    );
+  console.log(ipfsHashes);
+
+  const BATCH_SIZE = 12;
+  for (let j = 0; j < Math.ceil(ipfsHashes.length / BATCH_SIZE); j++) {
+    await delay(1000);
+    const promises = [];
+    for (let i = j * BATCH_SIZE; i < Math.min((j + 1) * BATCH_SIZE, ipfsHashes.length); i++) {
+      if (i % 2 == 0) await delay(1000);
+      console.log(`${i + 1}/${ipfsHashes.length} Start unpinning file from IPFS`);
+      promises.push(
+        pinata
+          .unpin(ipfsHashes[i])
+          .then(() => console.log(`${i + 1}/${ipfsHashes.length} Unpinned file from IPFS`)),
+      );
+    }
+
+    await Promise.all(promises);
   }
 
-  await Promise.all(promises);
+  await Promise.all([
+    fs.promises.unlink(path.join(BASE_PATH, 'provenance.json')),
+    fs.promises.unlink(path.join(BASE_PATH, 'unpin.json')),
+    fs.promises.readdir(path.join(BASE_PATH, 'Metadata')).then((files) => {
+      const promises = [];
+      for (const file of files) {
+        promises.push(fs.promises.unlink(path.join(BASE_PATH, 'Metadata', file)));
+      }
+
+      return Promise.all(promises);
+    }),
+  ]);
 };
 
-main();
+const emergencyUnpin = async () => {
+  await pinata.pinList({ status: 'pinned', pageLimit: 1000 }).then(async (resp) => {
+    for (let i = 0; i < resp.rows.length; i++) {
+      if (i % 3 == 0) await delay(1000);
+
+      const hash = resp.rows[i].ipfs_pin_hash;
+      if (
+        hash === 'QmUpDQPp45zePrQmsdtUGuSr4q6ZnmxVDFtzHrLwBAVuTY' ||
+        hash === 'QmR7u6cL39tx4q4uhZ9vdQstAY3HXvCRtt1uVg48XQgTen'
+      ) {
+        continue;
+      }
+
+      console.log(`${i + 1}/${resp.rows.length} Start unpinning file from IPFS`);
+      pinata
+        .unpin(hash)
+        .then(() => console.log(`${i + 1}/${resp.rows.length} Unpinned file from IPFS`));
+    }
+  });
+};
+
+// main();
 // unpinAll();
+emergencyUnpin();
 
 // const test = async () => {
 //   const p1 = '../photoshop-scripting/v2/Metadata';
