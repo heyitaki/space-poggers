@@ -31,7 +31,8 @@ export const pinDirectoryToIPFS = (srcDir: string): Promise<any> => {
         },
       })
       .catch(function (error: any) {
-        //handle error here
+        console.error('Error pinning dir to IPFS: ', srcDir);
+        console.error(error);
       });
   });
 };
@@ -53,6 +54,7 @@ export const pinFileToIPFS = (filepath: string) => {
       },
     })
     .catch(function (error: any) {
-      //handle error here
+      console.error('Error pinning file to IPFS: ', filepath);
+      console.error(error);
     });
 };
