@@ -1,5 +1,5 @@
-MAX_TRIBE_COUNT = 2  # 996
-MAX_SPECIAL_TRIBE_COUNT = 4
+MAX_TRIBE_COUNT = 996
+MAX_SPECIAL_TRIBE_COUNT = 40 #4
 WILDCARD = "*"
 
 ### Tribes ###
@@ -45,6 +45,11 @@ BACKGROUND_LIST = [
     ("Peach", 0.1625),
     ("Rainbow", 0.02),
     ("Starry Space", 0.005),
+]
+
+SPECIAL_BACKGROUND_LIST = [
+    ("Rainbow", 0.8),
+    ("Starry Space", 0.2),
 ]
 
 CLOTHING_LIST = [
@@ -145,18 +150,16 @@ EYEWEAR_LIST = [
 ]
 
 MOUTHPIECE_LIST = [
-    ("Bamboo Shoot", 0.04),
     ("Cigar", 0.0025),
     ("Frilly Party Blower", 0.01),
-    ("Gum", 0.04),
-    ("Harmonica", 0.04),
-    ("Kazoo", 0.04),
-    ("None", 0.645),
+    ("Gum", 0.02),
+    ("Kazoo", 0.02),
+    ("None", 0.845),
     ("Pacifier", 0.01),
-    ("Party Blower", 0.04),
-    ("Piece of Straw", 0.04),
-    ("Pipe", 0.04),
+    ("Party Blower", 0.02),
+    ("Piece of Straw", 0.02),
+    ("Pipe", 0.02),
     ("Rose", 0.01),
     ("Space Vape", 0.0025),
-    ("Spoon", 0.04),
+    ("Spoon", 0.02),
 ]
