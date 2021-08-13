@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { BASE_PATH, NUM_TOKENS_TO_MINT } from './constants';
 import { getComboFromFilename, getMetadataJson } from './metadata';
-import { createHashFromFile, createHashFromString, shuffleArray } from './utils';
+import { createHashFromFile, createHashFromString, delay, shuffleArray } from './utils';
 
 type ProvenanceEntry = {
   tokenId: number;
@@ -38,52 +38,66 @@ const main = async () => {
     console.log(`Found ${files.length} images in ${imgPath}`);
     console.log(files, imgPath);
 
-    // Loop through files
-    for (let i = 0; i < tokenIdQueue.length; i++) {
-      const tokenId = tokenIdQueue[i];
-      const file = files[tokenId];
+    // Batch to avoid "too many open files" error
+    const BATCH_SIZE = 10;
+    for (let j = 0; j < NUM_TOKENS_TO_MINT / BATCH_SIZE; j++) {
+      const promises: Promise<any>[] = [];
+      console.log(`Starting batch ${j+1}/${NUM_TOKENS_TO_MINT / BATCH_SIZE}...`)
+      await delay(1000)
 
-      // Upload img to IPFS
-      console.log(`(${i + 1}/${files.length}) Uploading image to IPFS: ${file}`);
-      const filepath = path.join(imgPath, file);
-      promises.push(
-        pinata.pinFromFS(filepath).then((data) => {
-          const ipfs = `ipfs://${data.IpfsHash}`;
-          unpinList.push(data.IpfsHash);
-          const promises = [];
+      // Loop through files
+      for (let i = BATCH_SIZE*j; i < (BATCH_SIZE+1)*j; i++) {
+        const tokenId = tokenIdQueue[i];
+        const file = files[tokenId];
+  
+        // Upload img to IPFS
+        if (i % 2 == 0) await delay(1000);
+        const filepath = path.join(imgPath, file);
+        console.log(`(${i + 1}/${files.length}) Uploaded image to IPFS: ${file}`)
+        promises.push(
+          pinata.pinFromFS(filepath).then((data) => {
+            console.log(`(${i + 1}/${files.length}) Uploaded image to IPFS: ${file}`);
+  
+            const ipfs = `ipfs://${data.IpfsHash}`;
+            unpinList.push(data.IpfsHash);
+            const promises = [];
+  
+            // Save metadata json to file
+            const combo = getComboFromFilename(file);
+            const metadata = getMetadataJson(ipfs, combo);
+            const metadataJson = JSON.stringify(metadata);
+            promises.push(
+              fs.promises
+                .writeFile(path.join(BASE_PATH, `Metadata/${tokenId}`), metadataJson)
+                .then(() =>
+                  console.log(`(${i + 1}/${files.length}) Finished writing token metadata to file`),
+                ),
+            );
+  
+            // Calculate image hash & save provenance data
+            promises.push(
+              createHashFromFile(filepath)
+                .then((imgHash) => {
+                  imageHashes[tokenId] = imgHash;
+                  const provenance = {
+                    tokenId,
+                    image: ipfs,
+                    imageHash: imgHash,
+                    traits: combo,
+                  };
+                  provenanceEntries.push(provenance);
+                })
+                .then(() => console.log(`(${i + 1}/${files.length}) Calculated image hash`)),
+            );
+  
+            return Promise.all(promises);
+          }),
+        );
+      }
 
-          // Save metadata json to file
-          const combo = getComboFromFilename(file);
-          const metadata = getMetadataJson(ipfs, combo);
-          const metadataJson = JSON.stringify(metadata);
-          promises.push(
-            fs.promises
-              .writeFile(path.join(BASE_PATH, `Metadata/${tokenId}`), metadataJson)
-              .then(() =>
-                console.log(`(${i + 1}/${files.length}) Finished writing token metadata to file`),
-              ),
-          );
-
-          // Calculate image hash & save provenance data
-          promises.push(
-            createHashFromFile(filepath)
-              .then((imgHash) => {
-                imageHashes[tokenId] = imgHash;
-                const provenance = {
-                  tokenId,
-                  image: ipfs,
-                  imageHash: imgHash,
-                  traits: combo,
-                };
-                provenanceEntries.push(provenance);
-              })
-              .then(() => console.log(`(${i + 1}/${files.length}) Calculated image hash`)),
-          );
-
-          return Promise.all(promises);
-        }),
-      );
+      await Promise.all(promises);
     }
+    
   } catch (e) {
     // Catch anything bad that happens
     console.error("We've thrown! Whoops!", e);
@@ -141,8 +155,8 @@ const unpinAll = async () => {
   await Promise.all(promises);
 };
 
-// main();
-unpinAll();
+main();
+// unpinAll();
 
 // const test = async () => {
 //   const p1 = '../photoshop-scripting/v2/Metadata';

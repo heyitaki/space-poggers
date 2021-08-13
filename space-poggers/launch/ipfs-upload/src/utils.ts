@@ -32,3 +32,5 @@ export const shuffleArray = (array: number[]) => {
 
   return array;
 };
+
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
