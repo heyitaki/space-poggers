@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 MAX_TRIBE_COUNT = 7  # 996
 MAX_SPECIAL_TRIBE_COUNT = 4
-=======
-MAX_TRIBE_COUNT = 996
-MAX_SPECIAL_TRIBE_COUNT = 40 #4
->>>>>>> 599b1b5c2ead7f6c2ad94a455ff46af919601fe9
 WILDCARD = "*"
 
 ### Tribes ###
