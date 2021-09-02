@@ -6,8 +6,8 @@ import {
 } from '@alch/alchemy-web3';
 import dotenv from 'dotenv';
 import fs from 'fs';
-import { Log } from 'web3-core';
-import { numToHexStr, sleep } from './utils';
+import { Log, Transaction } from 'web3-core';
+import { hexToNum, numToHex, sleep } from './utils';
 
 dotenv.config();
 const API_URL = process.env.API_URL;
@@ -34,7 +34,7 @@ export const getTransactionsAlchemy = async (
     while (true) {
       await sleep(5000);
       const filters: AssetTransfersParams = {
-        fromBlock: numToHexStr(fromBlock),
+        fromBlock: numToHex(fromBlock),
         pageKey: pKey === '' ? undefined : pKey,
         excludeZeroValue: false,
         contractAddresses: ['0x4a8b01e437c65fa8612e8b699266c0e0a98ff65c'],
@@ -64,7 +64,7 @@ export const getTransactionsAlchemy = async (
 };
 
 const TOKEN_TRANSFER_TOPIC0 = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-export const getTransfersManually = async (fromBlock: number) => {
+export const getTransfersManually = async (fromBlock: number = 12983740) => {
   let allTransfers: Log[] = [];
   const promises = [];
   const toBlock = await web3.eth.getBlock('latest').then((data) => data.number);
@@ -96,6 +96,60 @@ export const getTransfersManually = async (fromBlock: number) => {
 
   return Promise.all(promises).then(() => {
     allTransfers = allTransfers.sort((t1, t2) => t1.blockNumber - t2.blockNumber);
-    fs.promises.writeFile('./data/transfers.json', JSON.stringify(allTransfers));
+    fs.writeFileSync('./data/transfers.json', JSON.stringify(allTransfers));
+    return allTransfers;
   });
+};
+
+export const getTransactions = async () => {
+  // const allTransfers = await getTransfersManually();
+  const allTransfers: Log[] = JSON.parse(fs.readFileSync('./data/transfers.json').toString());
+  console.log(`Getting transactions for ${allTransfers.length} transfers`);
+
+  const failedTxs: Log[] = [];
+  const txHashToData: { [transactionHash: string]: { value: string; count: number } } = {};
+  let promises: Promise<void>[] = [];
+  for (let i = 0; i < allTransfers.length; i++) {
+    promises.push(
+      web3.eth
+        .getTransaction(allTransfers[i].transactionHash)
+        .then((tx) => {
+          if (tx.hash in txHashToData) {
+            txHashToData[tx.hash].count++;
+          } else {
+            txHashToData[tx.hash] = { value: tx.value, count: 1 };
+          }
+        })
+        .then(() => console.log(`(${i + 1}/${allTransfers.length}) Got transaction from transfer`))
+        .catch((e) => {
+          console.log(e);
+          console.log('Data: ', allTransfers[i]);
+          failedTxs.push(allTransfers[i]);
+        }),
+    );
+
+    // 35 calls at a time because 660 CUP / 17 CU ~= 35
+    if (promises.length % 35 == 0) {
+      await Promise.all(promises);
+      promises = [];
+    }
+  }
+
+  const reducedMap: { [txHash: string]: number } = {};
+  for (const hash in txHashToData) {
+    if (!hash || hexToNum(txHashToData[hash].value) <= 0) continue;
+    const txValue = hexToNum(txHashToData[hash].value) / 1000000000000000000; // wei to eth
+    const valuePerTransfer = txValue / txHashToData[hash].count;
+    reducedMap[hash] = valuePerTransfer;
+  }
+
+  fs.writeFileSync('./data/transaction_hash_to_value.json', JSON.stringify(reducedMap));
+  fs.writeFileSync('./data/transactions-failed.json', JSON.stringify(failedTxs));
+};
+
+const txHashToValueMap: { [txHash: string]: number } = JSON.parse(
+  fs.readFileSync('./data/transaction_hash_to_value.json').toString(),
+);
+export const getTransactionValue = (txHash: string): number => {
+  return txHashToValueMap[txHash] || 0;
 };
