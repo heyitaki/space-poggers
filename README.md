@@ -1,2 +1,3 @@
-# Interning for Nifty Whale
-Met Nifty on Twitter, loved his energy and desire to give back to the community and wanted to work on some stuff for him :)
+# Space Poggers
+
+Code for [Space Poggers](https://spacepoggers.com/) launch and some other related projects in that timeframe. Feel free to DM me any questions on twitter [@heyitaki](https://twitter.com/heyitaki)!
